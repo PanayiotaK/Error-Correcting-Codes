@@ -2,10 +2,97 @@
 #input: a number r
 #output: G, the generator matrix of the (2^r-1,2^r-r-1) Hamming code
 
+def testAll():
+    assert (message([1]) == [0, 0, 1, 1])
+    assert (message([0, 0, 1]) == [0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0])
+    assert (message([0, 1, 1, 0]) == [0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0])
+    assert (message([1, 1, 1, 1, 0, 1]) == [0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0])
+    assert (message([]) == [])
 
 
+    assert (hammingEncoder([1, 1, 1]) == [])
+    assert (hammingEncoder([1, 0, 0, 0]) == [1, 1, 1, 0, 0, 0, 0])
+    assert (hammingEncoder([0]) == [0, 0, 0])
+    assert (hammingEncoder([0, 0, 0]) == [])
+    assert (hammingEncoder([0, 0, 0, 0, 0, 0]) == [])
+    assert (hammingEncoder([0, 0, 1, 1]) == [1,0,0,0,0,1,1])
+    assert (hammingEncoder([1,1,0,1,0,0,1,1,0,1,1]) == [1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1])
+    assert (hammingEncoder([1,1,0,1,0,0,1,1,0,1,1,0,1,1,1,1,0,0,0,0,1,1,0,1,1,1]) == [0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1])
+    assert (hammingEncoder([]) == [])
 
+    
+    assert (hammingDecoder([1, 0, 1, 1]) == [])
+    assert (hammingDecoder([0, 1, 1, 0, 0, 0, 0]) == [1, 1, 1, 0, 0, 0, 0])
+    assert (hammingDecoder([1, 0, 0, 0, 0, 0, 1]) == [1, 0, 0, 0, 0, 1, 1])
+    assert (hammingDecoder([1, 1, 0]) == [1, 1, 1])
+    assert (hammingDecoder([1, 0, 0, 0, 0, 0, 0]) == [0, 0, 0, 0, 0, 0, 0])
+    assert (hammingDecoder([1,0,1,1,1,0,1]) == [1, 0, 1, 0, 1, 0, 1])
+    assert (hammingDecoder([]) == [])
+
+    
+
+    assert (messageFromCodeword([1, 0, 1, 1]) == [])
+    assert (messageFromCodeword([1, 1, 1, 0, 0, 0, 0]) == [1, 0, 0, 0])
+    assert (messageFromCodeword([1, 0, 0, 0, 0, 1, 1]) == [0, 0, 1, 1])
+    assert (messageFromCodeword([1, 1, 1, 1, 1, 1, 1]) == [1, 1, 1, 1])
+    assert (messageFromCodeword([0, 0, 0, 0]) == [])
+    assert (messageFromCodeword([]) == [])
+
+
+    
+
+    assert (dataFromMessage([1, 0, 0, 1, 0, 1, 1, 0, 1, 0]) == [])
+    assert (dataFromMessage([1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0]) == [])
+    assert (dataFromMessage([0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0]) == [0, 1, 1, 0, 1])
+    assert (dataFromMessage([0, 0, 1, 1]) == [1])
+    assert (dataFromMessage([0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0]) == [0, 0, 1])
+    assert (dataFromMessage([0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0]) == [0, 1, 1, 0])
+    assert (dataFromMessage([0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0]) == [1, 1, 1, 1, 0, 1])
+    assert (dataFromMessage([1, 1, 1, 1]) == [])
+    assert (dataFromMessage([]) == [])
+    
+
+    assert (repetitionEncoder([0], 4) == [0, 0, 0, 0])
+    assert (repetitionEncoder([0], 2) == [0, 0])
+    assert (repetitionEncoder([1], 4) == [1, 1, 1, 1])
+    assert (repetitionEncoder([1], 0) == [])
+    assert (repetitionEncoder([1,1], 2) == [])
+    assert (repetitionEncoder([2], 2) == [])
+    assert (repetitionEncoder([1], -2) == [])
+    assert (repetitionEncoder([1], 2.32) == [])
+    assert (repetitionEncoder([1], 0.32) == [])
+    assert (repetitionEncoder([],2) == [])
+    
+
+    assert (repetitionDecoder([1, 1, 0, 0]) == [])
+    assert (repetitionDecoder([1, 0, 0, 0]) == [0])
+    assert (repetitionDecoder([0, 0, 1]) == [0])
+    assert (repetitionDecoder([1, 1, 1, 1]) == [1])
+    assert (repetitionDecoder([]) == [])
+
+    print('all tests passed')
+    
+import random, math
 import numpy as np
+def randomflip(data):
+    bit = random.randrange(len(data))
+    data[bit] = (data[bit]+1)%2
+    return data
+
+def testdata(inp, fliprandombit=False):
+    if not fliprandombit:
+        assert (inp == dataFromMessage(messageFromCodeword(hammingDecoder(hammingEncoder(message(inp))))))
+    else:
+        assert (inp == dataFromMessage(messageFromCodeword(hammingDecoder(randomflip(hammingEncoder(message(inp)))))))
+
+
+def test_up_to(n, randflip=False, step=1):
+    for i in range(1,n, step):
+        testdata(decimalToVector(i,math.ceil(math.log2(i))), randflip)
+    print("all tests passed")
+
+
+
 def hammingGeneratorMatrix(r):
     n = 2**r-1
     #construct permutation pi
@@ -45,9 +132,12 @@ def hammingGeneratorMatrix(r):
 #output: a string v of r bits representing n
 
 def valid_inp(p):
+    if len(p)==0:
+        return False
     for i in range(len(p)):
         if p[i]!=0 and p[i]!=1:
             return False
+    
     else:
         return True
 
@@ -60,7 +150,7 @@ def decimalToVector(n,r):
 
 
 def VectorTodecimal(m,r):
-    if(valid_inp(m)==True):
+    if valid_inp(m):
         power=r-1
         decimal=0
         for s in range(r):
@@ -70,13 +160,12 @@ def VectorTodecimal(m,r):
     else:
         return []
 
-
 def message(a):
-    if(valid_inp(a)==True):
+    if valid_inp(a):
         m=[]
         r=2
         k=2**r-r-1
-        while(k-r<len(a)):
+        while k-r<len(a):
             r+=1
             k=2**r-r-1        
         len_bin=decimalToVector(len(a),r)
@@ -94,7 +183,7 @@ def MULT(m,G,colG):
     col=[]
     r=2
     k=2**r-r-1
-    while(k!=len(m)):
+    while k!=len(m):
         r+=1
         k=2**r-r-1
     result=[]    
@@ -110,43 +199,41 @@ def MULT(m,G,colG):
     
 def hammingEncoder(m):
     result_l=[]
-    if(valid_inp(m)==True):
+    if valid_inp(m):
         r=2
         k=2**r-r-1
-        while(k!=len(m)):
+        while k!=len(m):
             r+=1
             k=2**r-r-1
-            if(k>len(m)):
+            if k>len(m):
                 return []
-       
         count=0
         G=np.array(hammingGeneratorMatrix(r),dtype=int)
         sizeG=G.size
         rowsG=len(G)
+        if rowsG !=len(m):
+            return []
         colG=sizeG//rowsG
         result1= MULT(m,G,colG)
         for k in result1:           
             result_l.append(k)
-        
-        
         return result_l
     else:
         return []
 
 
 def dataFromMessage(m):
-    if(valid_inp(m)==True):
+    if valid_inp(m):
         lengthL=[]
         output=[]
         length=0
         r=2
         k=2**r-r-1
-        while(k!=len(m)):
+        while k!=len(m):
             r+=1
             k=2**r-r-1
-            if(k>len(m)):
+            if k>len(m):
                 return []
-        
         for i in range(r):
             lengthL.append(m[i])    
         length=VectorTodecimal(lengthL,len(lengthL))
@@ -193,7 +280,7 @@ def VectorMulMet(v,H):
         return []
 
 def hammingDecoder(v):
-    if(valid_inp(v)==True):
+    if valid_inp(v):
         r=2
         k=2**r-1
         while(k!=len(v)):
@@ -202,8 +289,12 @@ def hammingDecoder(v):
             if k>len(v):
                 return []
         H_= np.array(GenerateH(r),dtype=int)
+        if len(v)!=len(H_):
+            return []
         pos_cha_bin=VectorMulMet(v,H_)        
         pos_chan_den=VectorTodecimal(pos_cha_bin,r)
+        if pos_chan_den>len(v):
+            return []            
         if v[pos_chan_den-1]==0:
             v[pos_chan_den-1]=1
         else:
@@ -215,16 +306,16 @@ def hammingDecoder(v):
 
 
 def messageFromCodeword(c):
-    if(valid_inp(c)==True):
+    if valid_inp(c):
         power=0
         r=2
         k=2**r-1
-        while(k!=len(c)):
+        while k!=len(c):
             r+=1
             k=2**r-1        
             if k>len(c):
                 return []
-            j=1
+        j=1
         for i in range(2**(r-1)+1):
             if i==2**power:
                 power+=1
@@ -236,7 +327,9 @@ def messageFromCodeword(c):
 
  
 def repetitionEncoder(m,n):
-    if(valid_inp(m)==True):
+    if type(n) != int:
+        return []
+    if valid_inp(m) and n>0 and len(m)==1:
         new_list=[]
         for i in range (0,n):
             new_list.extend(m)
@@ -245,7 +338,7 @@ def repetitionEncoder(m,n):
         return []
 
 def repetitionDecoder(v):
-    if(valid_inp(v)==True):
+    if valid_inp(v) and len(v)>0:
         count1=0
         count0=0
         L=[]
