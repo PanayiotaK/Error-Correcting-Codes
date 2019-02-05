@@ -1,6 +1,10 @@
 #function HammingG
 #input: a number r
 #output: G, the generator matrix of the (2^r-1,2^r-r-1) Hamming code
+
+
+
+
 import numpy as np
 def hammingGeneratorMatrix(r):
     n = 2**r-1
@@ -32,7 +36,7 @@ def hammingGeneratorMatrix(r):
 
     #transpose    
     G = [list(i) for i in zip(*G)]
-
+   
     return G
 
 
@@ -54,6 +58,7 @@ def decimalToVector(n,r):
         n //= 2
     return v
 
+
 def VectorTodecimal(m,r):
     if(valid_inp(m)==True):
         power=r-1
@@ -73,8 +78,7 @@ def message(a):
         k=2**r-r-1
         while(k-r<len(a)):
             r+=1
-            k=2**r-r-1
-        #print("r ",r, "k",k)
+            k=2**r-r-1        
         len_bin=decimalToVector(len(a),r)
         m.extend(len_bin)
         m.extend(a)
@@ -83,11 +87,29 @@ def message(a):
         return m
     else:
         return []
-a=[]
-print(message(a))
 
 
+def MULT(m,G,colG):    
+    sum1=0
+    col=[]
+    r=2
+    k=2**r-r-1
+    while(k!=len(m)):
+        r+=1
+        k=2**r-r-1
+    result=[]    
+    for j in range(colG):
+        sum1=0
+        col.clear()
+        col = [item[j] for item in G]        
+        for i in range(len(m)):
+            sum1+=m[i]*col[i]
+           
+        result.append(sum1%2)
+    return result
+    
 def hammingEncoder(m):
+    result_l=[]
     if(valid_inp(m)==True):
         r=2
         k=2**r-r-1
@@ -96,14 +118,20 @@ def hammingEncoder(m):
             k=2**r-r-1
             if(k>len(m)):
                 return []
-        G=hammingGeneratorMatrix(r)
-        result=np.dot(m,G)
-        result1=list(result)
-        return result1
+       
+        count=0
+        G=np.array(hammingGeneratorMatrix(r),dtype=int)
+        sizeG=G.size
+        rowsG=len(G)
+        colG=sizeG//rowsG
+        result1= MULT(m,G,colG)
+        for k in result1:           
+            result_l.append(k)
+        
+        
+        return result_l
     else:
         return []
-
-print(hammingEncoder([1,0,0,0]))      
 
 
 def dataFromMessage(m):
@@ -118,18 +146,15 @@ def dataFromMessage(m):
             k=2**r-r-1
             if(k>len(m)):
                 return []
-        #print("r: ",r)
+        
         for i in range(r):
             lengthL.append(m[i])    
         length=VectorTodecimal(lengthL,len(lengthL))
         if length==0:
             return []
         if len(m)-r<length:
-            #print("len(m)-r<length")
             return []
-        #print("length: ",length)
         for j in range(r,r+length):
-            #print("J ",j)
             output.append(m[j])
         for k in range(r+length,len(m)):
             if m[k]!=0:            
@@ -176,14 +201,9 @@ def hammingDecoder(v):
             k=2**r-1
             if k>len(v):
                 return []
-        #print("v:" ,v)
         H_= np.array(GenerateH(r),dtype=int)
-        #print(H_)
-        #print("r ",r)
-        pos_cha_bin=VectorMulMet(v,H_)
-        #print("mult: ", pos_cha_bin)
+        pos_cha_bin=VectorMulMet(v,H_)        
         pos_chan_den=VectorTodecimal(pos_cha_bin,r)
-        #print("possition: ",pos_chan_den)
         if v[pos_chan_den-1]==0:
             v[pos_chan_den-1]=1
         else:
@@ -204,17 +224,17 @@ def messageFromCodeword(c):
             k=2**r-1        
             if k>len(c):
                 return []
-        
-        for i in range(2**r):
+            j=1
+        for i in range(2**(r-1)+1):
             if i==2**power:
                 power+=1
-                #print("i: ",i)
-                del c[i-1]
+                del c[i-j]
+                j+=1
         return c
     else:
         return []
 
-    
+ 
 def repetitionEncoder(m,n):
     if(valid_inp(m)==True):
         new_list=[]
@@ -243,4 +263,4 @@ def repetitionDecoder(v):
 
 
 
-    
+print(testAll())
