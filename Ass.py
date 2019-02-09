@@ -8,7 +8,8 @@ def testAll():
     assert (message([0, 1, 1, 0]) == [0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0])
     assert (message([1, 1, 1, 1, 0, 1]) == [0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0])
     assert (message([]) == [])
-
+    assert (message([0,1,1,0,1])==[0,1,0,1,0,1,1,0,1,0,0])
+    assert (message([0]) == [0,0,1,0])
 
     assert (hammingEncoder([1, 1, 1]) == [])
     assert (hammingEncoder([1, 0, 0, 0]) == [1, 1, 1, 0, 0, 0, 0])
@@ -19,7 +20,6 @@ def testAll():
     assert (hammingEncoder([1,1,0,1,0,0,1,1,0,1,1]) == [1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1])
     assert (hammingEncoder([1,1,0,1,0,0,1,1,0,1,1,0,1,1,1,1,0,0,0,0,1,1,0,1,1,1]) == [0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1])
     assert (hammingEncoder([]) == [])
-
     
     assert (hammingDecoder([1, 0, 1, 1]) == [])
     assert (hammingDecoder([0, 1, 1, 0, 0, 0, 0]) == [1, 1, 1, 0, 0, 0, 0])
@@ -29,17 +29,12 @@ def testAll():
     assert (hammingDecoder([1,0,1,1,1,0,1]) == [1, 0, 1, 0, 1, 0, 1])
     assert (hammingDecoder([]) == [])
 
-    
-
     assert (messageFromCodeword([1, 0, 1, 1]) == [])
     assert (messageFromCodeword([1, 1, 1, 0, 0, 0, 0]) == [1, 0, 0, 0])
     assert (messageFromCodeword([1, 0, 0, 0, 0, 1, 1]) == [0, 0, 1, 1])
     assert (messageFromCodeword([1, 1, 1, 1, 1, 1, 1]) == [1, 1, 1, 1])
     assert (messageFromCodeword([0, 0, 0, 0]) == [])
     assert (messageFromCodeword([]) == [])
-
-
-    
 
     assert (dataFromMessage([1, 0, 0, 1, 0, 1, 1, 0, 1, 0]) == [])
     assert (dataFromMessage([1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0]) == [])
@@ -50,7 +45,6 @@ def testAll():
     assert (dataFromMessage([0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0]) == [1, 1, 1, 1, 0, 1])
     assert (dataFromMessage([1, 1, 1, 1]) == [])
     assert (dataFromMessage([]) == [])
-    
 
     assert (repetitionEncoder([0], 4) == [0, 0, 0, 0])
     assert (repetitionEncoder([0], 2) == [0, 0])
@@ -62,7 +56,6 @@ def testAll():
     assert (repetitionEncoder([1], 2.32) == [])
     assert (repetitionEncoder([1], 0.32) == [])
     assert (repetitionEncoder([],2) == [])
-    
 
     assert (repetitionDecoder([1, 1, 0, 0]) == [])
     assert (repetitionDecoder([1, 0, 0, 0]) == [0])
@@ -131,15 +124,16 @@ def hammingGeneratorMatrix(r):
 #input: numbers n and r (0 <= n<2**r)
 #output: a string v of r bits representing n
 
-def valid_inp(p):
+#checks if the input is valid
+def valid_inp(p):               
     if len(p)==0:
         return False
     for i in range(len(p)):
         if p[i]!=0 and p[i]!=1:
             return False
-    
     else:
         return True
+    
 
 def decimalToVector(n,r): 
     v = []
@@ -148,7 +142,7 @@ def decimalToVector(n,r):
         n //= 2
     return v
 
-
+#converts a vector to its decimal value in r bits 
 def VectorTodecimal(m,r):
     if valid_inp(m):
         power=r-1
@@ -159,7 +153,8 @@ def VectorTodecimal(m,r):
         return decimal
     else:
         return []
-
+    
+#converts input a to a  message with correct length 
 def message(a):
     if valid_inp(a):
         m=[]
@@ -177,15 +172,10 @@ def message(a):
     else:
         return []
 
-
+#multiplication function of m and matrix G
 def MULT(m,G,colG):    
     sum1=0
     col=[]
-    r=2
-    k=2**r-r-1
-    while k!=len(m):
-        r+=1
-        k=2**r-r-1
     result=[]    
     for j in range(colG):
         sum1=0
@@ -193,12 +183,12 @@ def MULT(m,G,colG):
         col = [item[j] for item in G]        
         for i in range(len(m)):
             sum1+=m[i]*col[i]
-           
         result.append(sum1%2)
     return result
+
+#encodes the input m by multipling it the matrix G
     
 def hammingEncoder(m):
-    result_l=[]
     if valid_inp(m):
         r=2
         k=2**r-r-1
@@ -215,12 +205,13 @@ def hammingEncoder(m):
             return []
         colG=sizeG//rowsG
         result1= MULT(m,G,colG)
-        for k in result1:           
-            result_l.append(k)
-        return result_l
+        #for k in result1:           
+            #result_l.append(k)
+        return result1
     else:
         return []
 
+#converts the input to the original input (a)
 
 def dataFromMessage(m):
     if valid_inp(m):
@@ -250,13 +241,15 @@ def dataFromMessage(m):
     else:
         return []
 
+#generates H transpose
+    
 def GenerateH(r):
     H=[]
     for i in range(2**r-1):
         H.append(decimalToVector(i+1,r))
     return H
 
-
+#multiplies vector c with H transpose
 
 def VectorMulMet(v,H):
     if(valid_inp(v)==True):
@@ -278,6 +271,9 @@ def VectorMulMet(v,H):
         return result
     else:
         return []
+
+
+#decodes the input using syndrome
 
 def hammingDecoder(v):
     if valid_inp(v):
@@ -304,6 +300,7 @@ def hammingDecoder(v):
         return []
 
 
+#recoves the message from the codeword of a Hamming code
 
 def messageFromCodeword(c):
     if valid_inp(c):
@@ -325,6 +322,8 @@ def messageFromCodeword(c):
     else:
         return []
 
+#outputs a list with n times the number m 
+
  
 def repetitionEncoder(m,n):
     if type(n) != int:
@@ -336,6 +335,8 @@ def repetitionEncoder(m,n):
         return new_list
     else:
         return []
+
+#outputs the number that is found more times 
 
 def repetitionDecoder(v):
     if valid_inp(v) and len(v)>0:
@@ -352,7 +353,8 @@ def repetitionDecoder(v):
         elif count1>count0:
             L.append(1)
         return L
-    return []
+    else:
+        return []
 
 
 
