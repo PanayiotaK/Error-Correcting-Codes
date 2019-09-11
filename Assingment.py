@@ -290,11 +290,12 @@ def hammingDecoder(v):
         pos_cha_bin=VectorMulMet(v,H_)        
         pos_chan_den=VectorTodecimal(pos_cha_bin,r)
         if pos_chan_den>len(v):
-            return []            
-        if v[pos_chan_den-1]==0:
-            v[pos_chan_den-1]=1
-        else:
-             v[pos_chan_den-1]=0
+            return []  
+        if pos_chan_den-1 >0 :
+             if v[pos_chan_den-1]==0:                 
+                v[pos_chan_den-1]=1
+              else:
+                v[pos_chan_den-1]=0
         return v
     else:
         return []
