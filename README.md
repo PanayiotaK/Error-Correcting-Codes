@@ -3,6 +3,6 @@
 and is as small as possible, then let m = (m1, . . . , mk) such that:
 
   * (m1, . . . , mr) represents ` in binary,
-  *(mr+1, . . . , mr+l) = a,
-  *(mr+l+1, . . . , mk) = (0, . . . , 0)
+  * (mr+1, . . . , mr+l) = a,
+  * (mr+l+1, . . . , mk) = (0, . . . , 0)
 
