@@ -7,5 +7,6 @@ def repetitionEncoder(m,n):
 m=[0]
 n=4
 c=repetitionEncoder(m,n)
-print(c)
+print(c)
+
 
